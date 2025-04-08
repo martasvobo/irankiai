@@ -1,6 +1,6 @@
-import { onCall } from "firebase-functions/https";
 import * as admin from "firebase-admin";
 import { logger } from "firebase-functions";
+import { onCall } from "firebase-functions/https";
 const db = admin.firestore();
 
 const getMovies = onCall(async () => {

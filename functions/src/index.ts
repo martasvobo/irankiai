@@ -7,97 +7,45 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { auth } from "firebase-functions/v1";
 
+// Initialize Firebase Admin
 admin.initializeApp();
-const db = admin.firestore();
 
-// Create a movie
-export const createMovie = functions.https.onRequest(async (req, res) => {
+// Function that runs when a user is created in Firebase Authentication
+export const createUserProfile = auth.user().onCreate(async (user) => {
   try {
-    const { title, director, releaseYear } = req.body;
-    if (!title || !director || !releaseYear) {
-      res
-        .status(400)
-        .send("Missing required fields: title, director, releaseYear");
-      return;
-    }
+    // Extract user information
+    const { uid, email, displayName, photoURL } = user;
 
-    const movie = { title, director, releaseYear };
-    const docRef = await db.collection("movies").add(movie);
-    res.status(201).send({ id: docRef.id, ...movie });
+    // Create a user profile document in Firestore
+    await admin
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .set({
+        uid,
+        email: email || null,
+        displayName: displayName || null,
+        photoURL: photoURL || null,
+        isAdmin: false,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+    logger.info(`User profile created for ${uid}`, { structuredData: true });
+    return null;
   } catch (error) {
-    res.status(500).send(error.message);
+    logger.error("Error creating user profile:", error);
+    return null;
   }
 });
 
-// Read a movie by ID
-export const getMovie = functions.https.onRequest(async (req, res) => {
-  try {
-    const { id } = req.query;
-    if (!id) {
-      res.status(400).send("Missing movie ID");
-      return;
-    }
+// Start writing functions
+// https://firebase.google.com/docs/functions/typescript
 
-    const doc = await db
-      .collection("movies")
-      .doc(id as string)
-      .get();
-    if (!doc.exists) {
-      res.status(404).send("Movie not found");
-      return;
-    }
-
-    res.status(200).send(doc.data());
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-// Update a movie by ID
-export const updateMovie = functions.https.onRequest(async (req, res) => {
-  try {
-    const { id } = req.query;
-    const { title, director, releaseYear } = req.body;
-    if (!id || (!title && !director && !releaseYear)) {
-      res.status(400).send("Missing required fields or movie ID");
-      return;
-    }
-
-    const updates: any = {};
-    if (title) updates.title = title;
-    if (director) updates.director = director;
-    if (releaseYear) updates.releaseYear = releaseYear;
-
-    await db
-      .collection("movies")
-      .doc(id as string)
-      .update(updates);
-    res.status(200).send("Movie updated successfully");
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-// Delete a movie by ID
-export const deleteMovie = functions.https.onRequest(async (req, res) => {
-  try {
-    const { id } = req.query;
-    if (!id) {
-      res.status(400).send("Missing movie ID");
-      return;
-    }
-
-    await db
-      .collection("movies")
-      .doc(id as string)
-      .delete();
-    res.status(200).send("Movie deleted successfully");
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
+// export const helloWorld = onRequest((request, response) => {
+//   logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });

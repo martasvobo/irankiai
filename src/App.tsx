@@ -1,79 +1,17 @@
 import React, { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { Button, Layout, Menu, message } from "antd";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
+import { getAuth, signOut } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./firebaseConfig";
+import LoginPage from "./LoginPage";
 import "./tailwind.css";
+import MainPage from "./MainPage";
 
 const { Header, Content } = Layout;
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-const MainPage: React.FC = () => (
-  <h1 className="text-center mt-10">Welcome to the Main Page</h1>
-);
-
-const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({
-  onLoginSuccess,
-}) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleRegister = async () => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      message.success("Registration successful!");
-      onLoginSuccess(email);
-    } catch (error: any) {
-      message.error(error.message);
-    }
-  };
-
-  const handleLogin = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      message.success("Login successful!");
-      onLoginSuccess(email);
-    } catch (error: any) {
-      message.error(error.message);
-    }
-  };
-
-  return (
-    <div className="flex flex-col items-center mt-10">
-      <h1 className="text-2xl mb-4">Login or Register</h1>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="mb-2 p-2 border rounded"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="mb-2 p-2 border rounded"
-      />
-      <div>
-        <Button type="primary" onClick={handleRegister} className="mr-2">
-          Register
-        </Button>
-        <Button type="default" onClick={handleLogin}>
-          Login
-        </Button>
-      </div>
-    </div>
-  );
-};
 
 const App: React.FC = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);

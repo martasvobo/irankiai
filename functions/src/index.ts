@@ -1,12 +1,3 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 import { auth } from "firebase-functions/v1";
@@ -14,15 +5,10 @@ import { auth } from "firebase-functions/v1";
 admin.initializeApp();
 import movieController from "./controllers/movieController";
 
-// Initialize Firebase Admin
-
-// Function that runs when a user is created in Firebase Authentication
 export const createUserProfile = auth.user().onCreate(async (user) => {
   try {
-    // Extract user information
     const { uid, email, displayName, photoURL } = user;
 
-    // Create a user profile document in Firestore
     await admin
       .firestore()
       .collection("users")
@@ -45,3 +31,6 @@ export const createUserProfile = auth.user().onCreate(async (user) => {
 });
 
 export const getMovies = movieController.getMovies;
+export const createMovie = movieController.createMovie;
+export const updateMovie = movieController.updateMovie;
+export const deleteMovie = movieController.deleteMovie;

@@ -11,8 +11,10 @@ import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 import { auth } from "firebase-functions/v1";
 
-// Initialize Firebase Admin
 admin.initializeApp();
+import movieController from "./controllers/movieController";
+
+// Initialize Firebase Admin
 
 // Function that runs when a user is created in Firebase Authentication
 export const createUserProfile = auth.user().onCreate(async (user) => {
@@ -42,10 +44,4 @@ export const createUserProfile = auth.user().onCreate(async (user) => {
   }
 });
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
-
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+export const getMovies = movieController.getMovies;

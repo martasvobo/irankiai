@@ -3,7 +3,7 @@ import { logger } from "firebase-functions";
 import { onCall } from "firebase-functions/https";
 const db = admin.firestore();
 
-const getMovies = onCall(async () => {
+const getMovies = onCall({ region: "europe-west1" }, async () => {
   try {
     const snapshot = await db.collection("movies").get();
     const movies = <any>[];
@@ -17,7 +17,7 @@ const getMovies = onCall(async () => {
   }
 });
 
-const createMovie = onCall(async (request) => {
+const createMovie = onCall({ region: "europe-west1" }, async (request) => {
   const { title, director, releaseDate } = request.data as any;
   logger.info("Creating movie: ", title, director, releaseDate);
   try {
@@ -34,7 +34,7 @@ const createMovie = onCall(async (request) => {
   }
 });
 
-const updateMovie = onCall(async (request) => {
+const updateMovie = onCall({ region: "europe-west1" }, async (request) => {
   const { id, title, director, releaseDate } = request.data as any;
   logger.info("Updating movie: ", id, title, director, releaseDate);
   try {
@@ -51,7 +51,7 @@ const updateMovie = onCall(async (request) => {
   }
 });
 
-const deleteMovie = onCall(async (request) => {
+const deleteMovie = onCall({ region: "europe-west1" }, async (request) => {
   const { id } = request.data as any;
 
   logger.info("Deleting movie with ID:", id);

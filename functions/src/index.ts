@@ -3,7 +3,6 @@ import * as admin from "firebase-admin";
 import { auth } from "firebase-functions/v1";
 
 admin.initializeApp();
-import movieController from "./controllers/movieController";
 
 export const createUserProfile = auth.user().onCreate(async (user) => {
   try {
@@ -30,6 +29,7 @@ export const createUserProfile = auth.user().onCreate(async (user) => {
   }
 });
 
+import movieController from "./controllers/movieController";
 export const getMovies = movieController.getMovies;
 export const createMovie = movieController.createMovie;
 export const updateMovie = movieController.updateMovie;

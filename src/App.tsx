@@ -1,22 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import { Button, Layout, Menu, message } from "antd";
-import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
-import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "./firebaseConfig";
-import LoginPage from "./LoginPage";
+import { Button, Layout, message } from "antd";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import React, { useEffect, useState } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import { auth } from "./firebaseConfig";
+import LoginPage from "./views/LoginPage";
+import MainPage from "./views/MainPage";
+import MoviesPage from "./views/MoviesPage";
 import "./tailwind.css";
-import MainPage from "./MainPage";
-import MoviesPage from "./MoviesPage";
 
 const { Header, Content } = Layout;
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
 const App: React.FC = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -34,20 +31,21 @@ const App: React.FC = () => {
     try {
       await signOut(auth);
       setUserEmail(null);
-      message.success("Logged out successfully!");
+      messageApi.success("Logged out successfully!");
     } catch (error: any) {
-      message.error(error.message);
+      messageApi.error(error.message);
     }
   };
 
   return (
     <Layout>
+      {contextHolder}
       <Header className="flex justify-between items-center bg-blue-500">
         <div
           className="text-white text-lg cursor-pointer"
           onClick={() => navigate("/")}
         >
-          My App
+          RomuvaMinus
         </div>
         {userEmail ? (
           <div className="flex items-center">

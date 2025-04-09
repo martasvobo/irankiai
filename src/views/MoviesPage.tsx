@@ -1,19 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { httpsCallable } from "firebase/functions";
-import { getFunctions } from "firebase/functions";
-import { Button, Card, List, Spin, Modal, Form, Input } from "antd";
+import { Button, Card, Form, Input, List, Modal, Spin } from "antd";
 import "antd/dist/reset.css";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
+import React, { useEffect, useState } from "react";
+import { auth, db, functions } from "../firebaseConfig";
 
-const functions = getFunctions();
 const getMovies = httpsCallable(functions, "getMovies");
 const createMovie = httpsCallable(functions, "createMovie");
 const updateMovie = httpsCallable(functions, "updateMovie");
 const deleteMovie = httpsCallable(functions, "deleteMovie");
-
-const auth = getAuth();
-const db = getFirestore();
 
 export default function MoviesPage() {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -134,11 +130,13 @@ export default function MoviesPage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl mb-4">Movies</h1>
-      {isAdmin && <div className="mb-4">
-        <Button type="primary" onClick={handleAddMovie} disabled={!isAdmin}>
-          Add Movie
-        </Button>
-      </div>}
+      {isAdmin && (
+        <div className="mb-4">
+          <Button type="primary" onClick={handleAddMovie} disabled={!isAdmin}>
+            Add Movie
+          </Button>
+        </div>
+      )}
       <List
         grid={{ gutter: 16, column: 4 }}
         dataSource={movies}

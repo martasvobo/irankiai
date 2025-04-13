@@ -1,13 +1,11 @@
-import { Button } from "antd";
-import { initializeApp } from "firebase/app";
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  signInWithEmailAndPassword,
+import { Button, message } from "antd";
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword 
 } from "firebase/auth";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, firebaseConfig } from "../firebaseConfig";
+import { auth } from "../firebaseConfig";
 
 const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({
   onLoginSuccess,
@@ -20,16 +18,25 @@ const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       onLoginSuccess(email);
-    } catch (error: any) {}
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        message.error("This email is already registered.");
+      } else {
+        message.error("Registration failed. Please check your credentials and try again.");
+      }
+      console.error("Registration error:", error);
+    }
   };
 
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      console.log("kek");
       onLoginSuccess(email);
       navigate("/");
-    } catch (error: any) {}
+    } catch (error: any) {
+      message.error("Provided credentials are incorrect.");
+      console.error("Login error:", error);
+    }
   };
 
   return (

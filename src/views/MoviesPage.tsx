@@ -1,10 +1,11 @@
-import { Button, Card, Form, Input, List, Modal, Spin } from "antd";
-import "antd/dist/reset.css";
+import { Button, Card, Form, Input, List, Modal, Spin, message } from "antd";
+import "antd/dist/reset.css"; 
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import React, { useEffect, useState } from "react";
 import { auth, db, functions } from "../firebaseConfig";
+import '@ant-design/v5-patch-for-react-19';
 
 const getMovies = httpsCallable(functions, "getMovies");
 const createMovie = httpsCallable(functions, "createMovie");
@@ -18,6 +19,7 @@ export default function MoviesPage() {
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
   const [form] = Form.useForm();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     const fetchUserData = async (uid: string) => {
@@ -42,10 +44,21 @@ export default function MoviesPage() {
     return () => unsubscribe();
   }, []);
 
+  // Helper: Wrap a promise with a timeout.
+  const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error("Request timed out")), timeoutMs)
+      ),
+    ]);
+  };
+
+  // Fetch movies from the backend.
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const result = await getMovies();
+        const result = await withTimeout(getMovies(), 10000);
         setMovies((result.data as any).movies as Movie[]);
       } catch (error) {
         console.error("Error fetching movies:", error);
@@ -55,64 +68,117 @@ export default function MoviesPage() {
     };
 
     fetchMovies();
-  }, []);
+  }, [messageApi]);
 
-  const handleAddMovie = () => {
-    if (!isAdmin) return;
+  const pressAddMovieButton = () => {
+    if (!isAdmin) {
+      messageApi.error("Only admins can add movies.");
+      return;
+    }
     setEditingMovie(null);
     form.resetFields();
     setIsModalOpen(true);
   };
 
-  const handleEditMovie = (movie: Movie) => {
-    if (!isAdmin) return;
+  const validateDetailsAndStoreMovie = async () => {
+    if (!isAdmin) {
+      messageApi.error("You do not have permission.");
+      return;
+    }
+    try {
+      const details = await form.validateFields();
+      if (!editingMovie) {
+        const duplicateMovie = movies.find(
+          (movie) =>
+            movie.title === details.title &&
+            movie.director === details.director &&
+            movie.releaseDate === details.releaseDate
+        );
+        if (duplicateMovie) {
+          messageApi.error("A movie with the same title, director, and release date already exists.");
+          return;
+        }
+        await createMovie(details);
+        await getMovies().then((result) => {
+          setMovies((result.data as any).movies as Movie[]);
+        });
+        messageApi.success("Movie added successfully!");
+      } else {
+        const duplicateMovie = movies.find(
+          (movie) =>
+            movie.id !== editingMovie.id &&
+            movie.title === details.title &&
+            movie.director === details.director &&
+            movie.releaseDate === details.releaseDate
+        );
+        if (duplicateMovie) {
+          messageApi.error("A movie with the same title, director, and release date already exists.");
+          return;
+        }
+        await updateMovie({ id: editingMovie.id, ...details });
+        await getMovies().then((result) => {
+          setMovies((result.data as any).movies as Movie[]);
+        });
+        messageApi.success("Movie updated successfully!");
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      messageApi.error("Please check the movie details and try again.");
+    }
+  };
+
+  const pressEditMovieButton = (movie: Movie) => {
+    if (!isAdmin) {
+      messageApi.error("You do not have permission to edit movies.");
+      return;
+    }
     setEditingMovie(movie);
     form.setFieldsValue(movie);
     setIsModalOpen(true);
   };
 
-  const handleDeleteMovie = (id: string) => {
-    if (!isAdmin) return;
-    deleteMovie({ id })
-      .then(() => getMovies())
-      .then((result) => {
-        setMovies((result.data as any).movies as Movie[]);
-      })
-      .catch((error) => {
-        console.error("Error deleting movie:", error);
-      });
-  };
-
-  const handleModalOk = () => {
-    if (!isAdmin) return;
-    form
-      .validateFields()
-      .then((values) => {
-        if (editingMovie) {
-          updateMovie({ id: editingMovie.id, ...values })
-            .then(() => getMovies())
-            .then((result) => {
+  const confirmAndDeleteMovie = (id: string) => {
+    if (!isAdmin) {
+      messageApi.error("Only admins can delete movies.");
+      return;
+    }
+    try {
+      Modal.confirm({
+        title: "Are you sure you want to delete this movie?",
+        content: "This action cannot be undone.",
+        okText: "Yes",
+        cancelText: "Cancel",
+        onOk: async () => {
+          try {
+            console.log("Attempting to delete movie with id:", id);
+            await deleteMovie({ id });
+            await getMovies().then((result) => {
               setMovies((result.data as any).movies as Movie[]);
-              setIsModalOpen(false);
-            })
-            .catch((error) => {
-              console.error("Error updating movie:", error);
             });
-        } else {
-          createMovie(values)
-            .then(() => getMovies())
-            .then((result) => {
-              setMovies((result.data as any).movies as Movie[]);
-              setIsModalOpen(false);
-            })
-            .catch((error) => {
-              console.error("Error creating movie:", error);
-            });
-        }
-      })
-      .catch((error) => {
-        console.error("Validation failed:", error);
+            messageApi.success("Movie deleted successfully!");
+          } catch (err) {
+            console.error("Error during deletion:", err);
+            messageApi.error("Failed to delete movie. Please try again.");
+          }
+        },
+        onCancel: () => {
+          console.log("Deletion canceled by the user.");
+        },
       });
+    } catch (error) {
+      if (window.confirm("Are you sure you want to delete this movie? This action cannot be undone.")) {
+        deleteMovie({ id })
+          .then(() => getMovies())
+          .then((result) => {
+            setMovies((result.data as any).movies as Movie[]);
+            messageApi.success("Movie deleted successfully!");
+          })
+          .catch((err) => {
+            console.error("Error deleting movie (fallback):", err);
+            messageApi.error("Failed to delete movie. Please try again.");
+          });
+      }
+    }
   };
 
   const handleModalCancel = () => {
@@ -129,10 +195,11 @@ export default function MoviesPage() {
 
   return (
     <div className="p-4">
+      {contextHolder}
       <h1 className="text-2xl mb-4">Movies</h1>
       {isAdmin && (
         <div className="mb-4">
-          <Button type="primary" onClick={handleAddMovie} disabled={!isAdmin}>
+          <Button type="primary" onClick={pressAddMovieButton}>
             Add Movie
           </Button>
         </div>
@@ -147,24 +214,18 @@ export default function MoviesPage() {
               actions={
                 isAdmin
                   ? [
-                      <Button
-                        type="link"
-                        onClick={() => handleEditMovie(movie)}
-                      >
+                      <Button type="link" key="edit" onClick={() => pressEditMovieButton(movie)}>
                         Edit
                       </Button>,
-                      <Button
-                        type="link"
-                        danger
-                        onClick={() => handleDeleteMovie(movie.id)}
-                      >
+                      <Button type="link" danger key="delete" onClick={() => confirmAndDeleteMovie(movie.id)}>
                         Delete
-                      </Button>,
+                      </Button>
                     ]
                   : []
               }
             >
-              <p>{movie.director}</p>
+              <p>Director: {movie.director}</p>
+              <p>Release Date: {new Date(movie.releaseDate).toDateString()}</p>
             </Card>
           </List.Item>
         )}
@@ -172,35 +233,17 @@ export default function MoviesPage() {
       <Modal
         title={editingMovie ? "Edit Movie" : "Add Movie"}
         open={isModalOpen}
-        onOk={handleModalOk}
+        onOk={validateDetailsAndStoreMovie}
         onCancel={handleModalCancel}
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            name="title"
-            label="Title"
-            rules={[
-              { required: true, message: "Please enter the movie title" },
-            ]}
-          >
+          <Form.Item name="title" label="Title" rules={[{ required: true, message: "Please enter the movie title" }]}>
             <Input />
           </Form.Item>
-          <Form.Item
-            name="director"
-            label="Director"
-            rules={[
-              { required: true, message: "Please enter the director's name" },
-            ]}
-          >
+          <Form.Item name="director" label="Director" rules={[{ required: true, message: "Please enter the director's name" }]}>
             <Input />
           </Form.Item>
-          <Form.Item
-            name="releaseDate"
-            label="Release Date"
-            rules={[
-              { required: true, message: "Please enter the release date" },
-            ]}
-          >
+          <Form.Item name="releaseDate" label="Release Date" rules={[{ required: true, message: "Please enter the release date" }]}>
             <Input type="date" />
           </Form.Item>
         </Form>

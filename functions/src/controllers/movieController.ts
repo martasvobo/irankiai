@@ -58,6 +58,14 @@ const deleteMovie = onCall({ region: "europe-west1" }, async (request) => {
   try {
     const movieRef = db.collection("movies").doc(id);
     await movieRef.delete();
+    const personalMoviesSnapshot = await db.collection("personalMovies")
+        .where("movieId", "==", id)
+        .get();
+    const batch = db.batch();
+    personalMoviesSnapshot.forEach((doc) => {
+        batch.delete(doc.ref);
+    });
+    await batch.commit();
     return { status: "success" };
   } catch (error) {
     logger.error("Error deleting movie:", error);

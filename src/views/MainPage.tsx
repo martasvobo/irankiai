@@ -26,56 +26,44 @@ export default function MainPage() {
   if (loading) return <div />;
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold mb-8">Welcome to the Main Page</h1>
-      {userType === "admin" && (
-        <>
-          <Button type="primary" size="large" onClick={() => navigate("/movies")}>
-            Go to Movies Page
-          </Button>
-          <Divider />
-          <Button type="primary" size="large" onClick={() => navigate("/users")}>
-            Go to Users Page
-          </Button>
-          <Divider />
-          <Button type="primary" size="large" onClick={() => navigate("/cinemas")}>
-            Go to Cinemas Page
-          </Button>
-          <Divider />
-        </>
-      )}
-      {userType === "user" && (
-        <>
-          <Button type="primary" size="large" onClick={() => navigate("/personal-movies")}>
-            Go to Personal Movies Page
-          </Button>
-          <Divider />
-        </>
-      )}
-      {userType === "cinemaWorker" && (
-        <>
-          <Button type="primary" size="large" onClick={() => navigate("/movie-screenings")}>
-            Go to Movie Screenings Page
-          </Button>
-          <Divider />
-        </>
-      )}
-      {userType === "user" && (
-        <>
-          <Button type="primary" size="large" onClick={() => navigate("/available-screenings")}>
-            See Available Screenings
-          </Button>
-          <Divider />
-        </>
-      )}
-      {userType === "user" && (
-        <>
-          <Button type="primary" size="large" onClick={() => navigate("/movie-list")}>
-            Go to Movie List Page
-          </Button>
-          <Divider />
-        </>
-      )}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white shadow-md rounded-xl p-8 w-full max-w-md flex flex-col items-center">
+        <h1 className="text-2xl font-bold mb-4 text-gray-800 text-center">Main Page</h1>
+        <Divider className="mb-4" />
+        {userType === "admin" && (
+          <div className="w-full flex flex-col gap-3">
+            <Button type="primary" className="w-full" onClick={() => navigate("/movies")}>
+              Movies
+            </Button>
+            <Button type="primary" className="w-full" onClick={() => navigate("/users")}>
+              Users
+            </Button>
+            <Button type="primary" className="w-full" onClick={() => navigate("/cinemas")}>
+              Cinemas
+            </Button>
+          </div>
+        )}
+        {userType === "user" && (
+          <div className="w-full flex flex-col gap-3">
+            <Button type="primary" className="w-full" onClick={() => navigate("/personal-movies")}>
+              Personal Movies
+            </Button>
+            <Button type="primary" className="w-full" onClick={() => navigate("/available-screenings")}>
+              Available Screenings
+            </Button>
+            <Button type="primary" className="w-full" onClick={() => navigate("/movie-list")}>
+              Movie List
+            </Button>
+          </div>
+        )}
+        {userType === "cinemaWorker" && (
+          <div className="w-full flex flex-col gap-3">
+            <Button type="primary" className="w-full" onClick={() => navigate("/movie-screenings")}>
+              Movie Screenings
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

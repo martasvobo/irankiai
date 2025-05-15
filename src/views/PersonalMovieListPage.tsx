@@ -4,6 +4,7 @@ import { httpsCallable } from "firebase/functions";
 import React, { useEffect, useState } from "react";
 import { auth, functions } from "../firebaseConfig";
 import { Movie } from "../types/movie";
+import MovieDetails from "./MovieDetails";
 
 const getPersonalMovies = httpsCallable(functions, "getPersonalMovies");
 const createPersonalMovie = httpsCallable(functions, "createPersonalMovie");
@@ -18,6 +19,8 @@ const PersonalMoviesPage: React.FC = () => {
   const [form] = Form.useForm();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   const fetchPersonalMovies = async () => {
     const res: any = await getPersonalMovies();
@@ -101,6 +104,15 @@ const PersonalMoviesPage: React.FC = () => {
       key: "actions",
       render: (_: any, record: any) => (
         <Space>
+          <Button
+            onClick={() => {
+              const movie = movies.find((m) => m.id === record.movieId) || null;
+              setSelectedMovie(movie);
+              setDetailsModalOpen(true);
+            }}
+          >
+            View Details
+          </Button>
           <Button onClick={() => handleEdit(record)}>Edit</Button>
           <Button danger onClick={() => handleDelete(record.id)}>
             Delete
@@ -175,6 +187,14 @@ const PersonalMoviesPage: React.FC = () => {
             </Select>
           </Form.Item>
         </Form>
+      </Modal>
+      <Modal
+        open={detailsModalOpen}
+        onCancel={() => setDetailsModalOpen(false)}
+        footer={null}
+        title={selectedMovie?.title || "Movie Details"}
+      >
+        {selectedMovie && <MovieDetails movie={selectedMovie} />}
       </Modal>
     </div>
   );

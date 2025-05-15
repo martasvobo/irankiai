@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Button, Modal, Form, Input, Table, Space, message, Select, DatePicker } from "antd";
+import { Button, DatePicker, Form, Input, message, Modal, Select, Space, Table } from "antd";
 import { httpsCallable } from "firebase/functions";
+import React, { useEffect, useState } from "react";
 import { functions } from "../firebaseConfig";
-import { Movie } from "../types/movie";
 import { Cinema } from "../types/cinema";
-import { MovieScreening } from "../types/movieScreening";
+import { Movie } from "../types/movie";
 
 const getMovieScreenings = httpsCallable(functions, "getMovieScreenings");
 const createMovieScreening = httpsCallable(functions, "createMovieScreening");

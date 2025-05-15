@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "../firebaseConfig";
 import { Movie } from "../types/movie";
+import MovieDetails from "./MovieDetails";
 
 const getMovies = httpsCallable(functions, "getMovies");
 
@@ -40,10 +41,7 @@ export default function MovieListPage() {
         dataSource={movies}
         renderItem={(movie) => (
           <List.Item>
-            <Card title={movie.title} className="shadow rounded-lg">
-              <p>Director: {movie.director}</p>
-              <p>Release Date: {new Date(movie.releaseDate).toDateString()}</p>
-            </Card>
+            <MovieDetails movie={movie} />
           </List.Item>
         )}
       />

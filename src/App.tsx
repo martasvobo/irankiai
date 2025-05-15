@@ -66,7 +66,14 @@ const App: React.FC = () => {
       </Header>
       <Content>
         <Routes>
-          <Route path="/" element={<MainPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute allowedTypes={["admin", "user", "cinemaWorker"]}>
+                <MainPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/login"
             element={

@@ -217,9 +217,6 @@ export default function UsersPage() {
               <p>Email: {user.email}</p>
               <p>Type: {user.type}</p>
               <p>Description: {user.description}</p>
-              {user.profilePicture && (
-                <img src={user.profilePicture} alt="Profile" className="w-16 h-16 object-cover rounded-full mt-2" />
-              )}
             </Card>
           </List.Item>
         )}
@@ -258,9 +255,6 @@ export default function UsersPage() {
               <Input.Password />
             </Form.Item>
           )}
-          <Form.Item name="profilePicture" label="Profile Picture URL">
-            <Input />
-          </Form.Item>
           <Form.Item name="description" label="Description">
             <Input.TextArea />
           </Form.Item>

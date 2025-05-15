@@ -86,23 +86,38 @@ const CinemasPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
-        Add Cinema
-      </Button>
-      <Table rowKey="id" dataSource={cinemas} columns={columns} />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
+      <div className="bg-white shadow-md rounded-xl p-8 w-full max-w-3xl">
+        <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">Cinemas</h1>
+        <Button type="primary" onClick={handleAdd} className="mb-6 w-full">
+          Add Cinema
+        </Button>
+        <Table rowKey="id" dataSource={cinemas} columns={columns} pagination={{ pageSize: 6 }} className="mb-4" />
+      </div>
       <Modal
         title={editingCinema ? "Edit Cinema" : "Add Cinema"}
         open={isModalOpen}
         onOk={handleModalOk}
         onCancel={() => setIsModalOpen(false)}
+        footer={null}
+        centered
       >
-        <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true, message: "Please enter the name" }]}>
-            <Input />
+        <Form form={form} layout="vertical" onFinish={handleModalOk} className="pt-4">
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: "Please enter the name" }]}
+            className="mb-4"
+          >
+            <Input size="large" />
           </Form.Item>
-          <Form.Item name="address" label="Address" rules={[{ required: true, message: "Please enter the address" }]}>
-            <Input />
+          <Form.Item
+            name="address"
+            label="Address"
+            rules={[{ required: true, message: "Please enter the address" }]}
+            className="mb-4"
+          >
+            <Input size="large" />
           </Form.Item>
           <Form.Item
             name="email"
@@ -111,9 +126,18 @@ const CinemasPage: React.FC = () => {
               { required: true, message: "Please enter the email" },
               { type: "email", message: "Please enter a valid email" },
             ]}
+            className="mb-6"
           >
-            <Input />
+            <Input size="large" />
           </Form.Item>
+          <div className="flex justify-end gap-2">
+            <Button onClick={() => setIsModalOpen(false)} className="mr-2">
+              Cancel
+            </Button>
+            <Button type="primary" htmlType="submit">
+              {editingCinema ? "Update" : "Create"}
+            </Button>
+          </div>
         </Form>
       </Modal>
     </div>

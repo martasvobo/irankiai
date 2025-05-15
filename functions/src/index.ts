@@ -6,7 +6,7 @@ admin.initializeApp();
 
 export const createUserProfile = auth.user().onCreate(async (user) => {
   try {
-    const { uid, email, displayName, photoURL } = user;
+    const { uid, email, displayName } = user;
 
     await admin
       .firestore()
@@ -16,7 +16,6 @@ export const createUserProfile = auth.user().onCreate(async (user) => {
         uid,
         email: email || null,
         username: displayName || null,
-        profilePicture: photoURL || null,
         type: "user",
         description: "",
       });

@@ -14,6 +14,7 @@ const getCinemas = httpsCallable(functions, "getCinemas");
 
 const MovieScreeningPage: React.FC = () => {
   const [movieScreenings, setMovieScreenings] = useState<any[]>([]);
+  console.log(movieScreenings);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMovieScreening, setEditingMovieScreening] = useState<any | null>(null);
   const [form] = Form.useForm();
@@ -99,33 +100,57 @@ const MovieScreeningPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
-        Add Movie Screening
-      </Button>
-      <Table dataSource={movieScreenings} columns={columns} rowKey="id" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
+      <div className="bg-white shadow-md rounded-xl p-8 w-full max-w-4xl">
+        <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">Movie Screenings</h1>
+        <Button type="primary" onClick={handleAdd} className="mb-6 w-full">
+          Add Movie Screening
+        </Button>
+        <Table
+          dataSource={movieScreenings}
+          columns={columns}
+          rowKey="id"
+          pagination={{ pageSize: 6 }}
+          className="mb-4"
+        />
+      </div>
       <Modal
         title={editingMovieScreening ? "Edit Movie Screening" : "Add Movie Screening"}
         open={isModalOpen}
         onOk={handleModalOk}
         onCancel={() => setIsModalOpen(false)}
+        footer={null}
+        centered
       >
-        <Form form={form} layout="vertical">
-          <Form.Item name="movieId" label="Movie" rules={[{ required: true }]}>
-            <Select options={movies.map((m) => ({ label: m.title, value: m.id }))} />
+        <Form form={form} layout="vertical" onFinish={handleModalOk} className="pt-4">
+          <Form.Item name="movieId" label="Movie" rules={[{ required: true }]} className="mb-4">
+            <Select options={movies.map((m) => ({ label: m.title, value: m.id }))} size="large" />
           </Form.Item>
-          <Form.Item name="cinemaId" label="Cinema" rules={[{ required: true }]}>
-            <Select options={cinemas.map((c) => ({ label: c.name, value: c.id }))} />
+          <Form.Item name="cinemaId" label="Cinema" rules={[{ required: true }]} className="mb-4">
+            <Select options={cinemas.map((c) => ({ label: c.name, value: c.id }))} size="large" />
           </Form.Item>
-          <Form.Item name="date" label="Date" rules={[{ required: true }]}>
-            <DatePicker showTime />
+          <Form.Item name="date" label="Date" rules={[{ required: true }]} className="mb-4">
+            <DatePicker showTime className="w-full" size="large" />
           </Form.Item>
-          <Form.Item name="hall" label="Hall" rules={[{ required: true }]}>
-            <Input />
+          <Form.Item name="hall" label="Hall" rules={[{ required: true }]} className="mb-4">
+            <Input size="large" />
           </Form.Item>
-          <Form.Item name="tickedCount" label="Ticket Count" rules={[{ required: true, type: "number", min: 0 }]}>
-            <Input type="number" />
+          <Form.Item
+            name="tickedCount"
+            label="Ticket Count"
+            rules={[{ required: true, min: 0, message: "Please enter a valid ticket count" }]}
+            className="mb-6"
+          >
+            <Input type="number" size="large" inputMode="numeric" pattern="[0-9]*" />
           </Form.Item>
+          <div className="flex justify-end gap-2">
+            <Button onClick={() => setIsModalOpen(false)} className="mr-2">
+              Cancel
+            </Button>
+            <Button type="primary" htmlType="submit">
+              {editingMovieScreening ? "Update" : "Create"}
+            </Button>
+          </div>
         </Form>
       </Modal>
     </div>

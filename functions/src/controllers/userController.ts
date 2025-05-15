@@ -18,15 +18,14 @@ const getUsers = onCall({ region: "europe-west1" }, async () => {
 });
 
 const createUser = onCall({ region: "europe-west1" }, async (request) => {
-  const { username, email, password, profilePicture, description, type } = request.data as any;
+  const { username, email, password, description, type } = request.data as any;
   logger.info("Creating user:", username, email, type);
   try {
-    const newUser = { username, email, profilePicture, description, type };
+    const newUser = { username, email, description, type };
     const userRecord = await admin.auth().createUser({
       email,
       password,
       displayName: username,
-      photoURL: profilePicture || undefined,
     });
     await db.collection("users").doc(userRecord.uid).set(newUser);
     return { status: "success", id: userRecord.uid };
@@ -37,7 +36,7 @@ const createUser = onCall({ region: "europe-west1" }, async (request) => {
 });
 
 const updateUser = onCall({ region: "europe-west1" }, async (request) => {
-  const { id, username, email, profilePicture, description, type, password } = request.data as any;
+  const { id, username, email, description, type, password } = request.data as any;
   logger.info("Updating user:", id, username, email, type);
   try {
     const userRef = db.collection("users").doc(id);
@@ -45,12 +44,10 @@ const updateUser = onCall({ region: "europe-west1" }, async (request) => {
       password,
       displayName: username,
       email,
-      photoURL: profilePicture || undefined,
     });
     await userRef.update({
       username,
       email,
-      profilePicture,
       description,
       type,
     });

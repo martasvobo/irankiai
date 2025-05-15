@@ -1,15 +1,10 @@
 import { Button, message } from "antd";
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword 
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebaseConfig";
 
-const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({
-  onLoginSuccess,
-}) => {
+const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -39,29 +34,30 @@ const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({
     }
   };
 
-  return (
-    <div className="flex flex-col items-center mt-10">
-      <h1 className="text-2xl mb-4">Login</h1>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="mb-2 p-2 border rounded"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="mb-2 p-2 border rounded"
-      />
-      <Button type="default" onClick={handleLogin}>
-        Login
-      </Button>
-      <Button type="default" onClick={handleRegister} className="mt-2">
-        Register
-      </Button>
+  return (    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white shadow-md rounded-xl p-8 w-full max-w-sm flex flex-col items-center">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">Login</h1>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mb-4 p-3 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="mb-6 p-3 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+        />
+        <Button type="primary" onClick={handleLogin} className="w-full mb-2">
+          Login
+        </Button>
+        <Button type="default" onClick={handleRegister} className="w-full">
+          Register
+        </Button>
+      </div>
     </div>
   );
 };

@@ -21,7 +21,7 @@ const createMovieScreening = onCall({ region: "europe-west1" }, async (request) 
   const { tickedCount, date, hall, movieId, cinemaId } = request.data as any;
   logger.info("Creating movie screening:", tickedCount, date, hall, movieId, cinemaId);
   try {
-    const newMovieScreening = { tickedCount, date: new Date(date), hall, movieId, cinemaId };
+    const newMovieScreening = { tickedCount, date, hall, movieId, cinemaId };
     const docRef = await db.collection("movieScreenings").add(newMovieScreening);
     return { status: "success", id: docRef.id };
   } catch (error) {
@@ -37,7 +37,7 @@ const updateMovieScreening = onCall({ region: "europe-west1" }, async (request) 
     const movieScreeningRef = db.collection("movieScreenings").doc(id);
     await movieScreeningRef.update({
       tickedCount,
-      date: new Date(date),
+      date,
       hall,
       movieId,
       cinemaId,

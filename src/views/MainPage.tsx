@@ -27,6 +27,10 @@ export default function MainPage() {
       <Button type="primary" size="large" onClick={() => navigate("/movie-screenings")}>
         Go to Movie Screenings Page
       </Button>
+      <Divider />
+      <Button type="primary" size="large" onClick={() => navigate("/available-screenings")}>
+        See Available Screenings
+      </Button>
     </div>
   );
 }

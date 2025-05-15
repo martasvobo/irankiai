@@ -89,6 +89,13 @@ export default function UsersPage() {
           return;
         }
         await createUser(details);
+
+        const { password, ...rest } = details;
+        if (password) {
+          await createUser({ ...rest, password });
+        } else {
+          await createUser(rest);
+        }
         await getUsers().then((result) => {
           setUsers((result.data as any).users as any[]);
         });
@@ -241,6 +248,16 @@ export default function UsersPage() {
           >
             <Input />
           </Form.Item>
+          {/* Password field only for adding a new user */}
+          {!editingUser && (
+            <Form.Item
+              name="password"
+              label="Password"
+              rules={[{ required: true, message: "Please enter the password" }]}
+            >
+              <Input.Password />
+            </Form.Item>
+          )}
           <Form.Item name="profilePicture" label="Profile Picture URL">
             <Input />
           </Form.Item>

@@ -26,7 +26,7 @@ const createUser = onCall({ region: "europe-west1" }, async (request) => {
       email,
       password,
       displayName: username,
-      photoURL: profilePicture,
+      photoURL: profilePicture || undefined,
     });
     await db.collection("users").doc(userRecord.uid).set(newUser);
     return { status: "success", id: userRecord.uid };
@@ -41,18 +41,18 @@ const updateUser = onCall({ region: "europe-west1" }, async (request) => {
   logger.info("Updating user:", id, username, email, type);
   try {
     const userRef = db.collection("users").doc(id);
+    await admin.auth().updateUser(id, {
+      password,
+      displayName: username,
+      email,
+      photoURL: profilePicture || undefined,
+    });
     await userRef.update({
       username,
       email,
       profilePicture,
       description,
       type,
-    });
-    await admin.auth().updateUser(id, {
-      password,
-      displayName: username,
-      email,
-      photoURL: profilePicture,
     });
     return { status: "success" };
   } catch (error) {

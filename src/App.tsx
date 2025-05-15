@@ -12,6 +12,7 @@ import CinemasPage from "./views/CinemasPage";
 import PersonalMoviesPage from "./views/PersonalMoviesPage";
 import MovieScreeningPage from "./views/movieScreeningPage";
 import AvailableScreeningsPage from "./views/AvailableScreeningsPage";
+import ProtectedRoute from "./views/ProtectedRoute";
 
 const { Header, Content } = Layout;
 
@@ -76,12 +77,54 @@ const App: React.FC = () => {
               />
             }
           />
-          <Route path="/movies" element={<MoviesPage />} />
-          <Route path="/users" element={<UsersPage />} />
-          <Route path="/cinemas" element={<CinemasPage />} />
-          <Route path="/personal-movies" element={<PersonalMoviesPage />} />
-          <Route path="/movie-screenings" element={<MovieScreeningPage />} />
-          <Route path="/available-screenings" element={<AvailableScreeningsPage />} />
+          <Route
+            path="/movies"
+            element={
+              <ProtectedRoute allowedTypes={["admin"]}>
+                <MoviesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute allowedTypes={["admin"]}>
+                <UsersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cinemas"
+            element={
+              <ProtectedRoute allowedTypes={["admin"]}>
+                <CinemasPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/personal-movies"
+            element={
+              <ProtectedRoute allowedTypes={["user"]}>
+                <PersonalMoviesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/movie-screenings"
+            element={
+              <ProtectedRoute allowedTypes={["cinemaWorker"]}>
+                <MovieScreeningPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/available-screenings"
+            element={
+              <ProtectedRoute allowedTypes={["user"]}>
+                <AvailableScreeningsPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Content>
     </Layout>

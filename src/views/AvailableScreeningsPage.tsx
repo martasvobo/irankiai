@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
 import { Button, Card, List, Spin } from "antd";
 import { httpsCallable } from "firebase/functions";
+import React, { useEffect, useState } from "react";
 import { functions } from "../firebaseConfig";
-import { Movie } from "../types/movie";
 import { Cinema } from "../types/cinema";
-import { MovieScreening } from "../types/movieScreening";
+import { Movie } from "../types/movie";
 
 const getMovieScreenings = httpsCallable(functions, "getMovieScreenings");
 const getMovies = httpsCallable(functions, "getMovies");

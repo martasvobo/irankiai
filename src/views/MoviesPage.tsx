@@ -1,11 +1,12 @@
 import { Button, Card, Form, Input, List, Modal, Spin, message } from "antd";
-import "antd/dist/reset.css"; 
+import "antd/dist/reset.css";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import React, { useEffect, useState } from "react";
 import { auth, db, functions } from "../firebaseConfig";
-import '@ant-design/v5-patch-for-react-19';
+import "@ant-design/v5-patch-for-react-19";
+import { Movie } from "../types/movie";
 
 const getMovies = httpsCallable(functions, "getMovies");
 const createMovie = httpsCallable(functions, "createMovie");
@@ -26,7 +27,7 @@ export default function MoviesPage() {
       try {
         const userDoc = await getDoc(doc(db, "users", uid));
         if (userDoc.exists()) {
-          setIsAdmin(userDoc.data().isAdmin);
+          setIsAdmin(userDoc.data().type === "admin");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -48,9 +49,7 @@ export default function MoviesPage() {
   const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
     return Promise.race([
       promise,
-      new Promise<T>((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out")), timeoutMs)
-      ),
+      new Promise<T>((_, reject) => setTimeout(() => reject(new Error("Request timed out")), timeoutMs)),
     ]);
   };
 
@@ -219,7 +218,7 @@ export default function MoviesPage() {
                       </Button>,
                       <Button type="link" danger key="delete" onClick={() => confirmAndDeleteMovie(movie.id)}>
                         Delete
-                      </Button>
+                      </Button>,
                     ]
                   : []
               }
@@ -240,10 +239,18 @@ export default function MoviesPage() {
           <Form.Item name="title" label="Title" rules={[{ required: true, message: "Please enter the movie title" }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="director" label="Director" rules={[{ required: true, message: "Please enter the director's name" }]}>
+          <Form.Item
+            name="director"
+            label="Director"
+            rules={[{ required: true, message: "Please enter the director's name" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="releaseDate" label="Release Date" rules={[{ required: true, message: "Please enter the release date" }]}>
+          <Form.Item
+            name="releaseDate"
+            label="Release Date"
+            rules={[{ required: true, message: "Please enter the release date" }]}
+          >
             <Input type="date" />
           </Form.Item>
         </Form>

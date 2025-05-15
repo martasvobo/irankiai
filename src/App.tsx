@@ -7,6 +7,7 @@ import LoginPage from "./views/LoginPage";
 import MainPage from "./views/MainPage";
 import MoviesPage from "./views/MoviesPage";
 import "./tailwind.css";
+import UsersPage from "./views/UsersPage";
 
 const { Header, Content } = Layout;
 
@@ -41,10 +42,7 @@ const App: React.FC = () => {
     <Layout>
       {contextHolder}
       <Header className="flex justify-between items-center bg-blue-500">
-        <div
-          className="text-white text-lg cursor-pointer"
-          onClick={() => navigate("/")}
-        >
+        <div className="text-white text-lg cursor-pointer" onClick={() => navigate("/")}>
           RomuvaMinus
         </div>
         {userEmail ? (
@@ -75,6 +73,7 @@ const App: React.FC = () => {
             }
           />
           <Route path="/movies" element={<MoviesPage />} />
+          <Route path="/users" element={<UsersPage />} />
         </Routes>
       </Content>
     </Layout>

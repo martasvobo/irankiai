@@ -1,4 +1,4 @@
-import { Button, Form, Input, message, Modal, Select, Space, Table, Card, Row, Col } from "antd";
+import { Button, Form, Input, InputNumber, message, Modal, Select, Space, Table, Card, Row, Col } from "antd";
 import { onAuthStateChanged } from "firebase/auth";
 import { httpsCallable } from "firebase/functions";
 import React, { useEffect, useState } from "react";
@@ -89,7 +89,12 @@ const PersonalMoviesPage: React.FC = () => {
   };
 
   const columns = [
-    { title: "State", dataIndex: "state", key: "state" },
+    {
+      title: "State",
+      dataIndex: "state",
+      key: "state",
+      render: (state: string) => (state === "toWatch" ? "To watch" : state === "watched" ? "Watched" : state),
+    },
     { title: "Rating", dataIndex: "rating", key: "rating" },
     { title: "Review", dataIndex: "review", key: "review" },
 
@@ -164,10 +169,21 @@ const PersonalMoviesPage: React.FC = () => {
           <Form.Item
             name="rating"
             label="Rating"
-            rules={[{ required: true, message: "Please enter the rating" }]}
+            rules={[
+              {
+                required: true,
+                message: "Please enter the rating",
+              },
+              {
+                type: "number",
+                min: 0,
+                max: 10,
+                message: "Rating must be between 0 and 10",
+              },
+            ]}
             style={{ marginBottom: 16 }}
           >
-            <Input type="number" min={0} max={10} size="large" />
+            <InputNumber min={0} max={10} size="large" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item name="review" label="Review" style={{ marginBottom: 16 }}>
             <Input.TextArea rows={3} size="large" />

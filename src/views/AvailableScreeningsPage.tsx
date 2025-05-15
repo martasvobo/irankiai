@@ -48,7 +48,20 @@ const AvailableScreeningsPage: React.FC = () => {
               <Card title={getMovieTitle(screening.movieId)} extra={<span>{getCinemaName(screening.cinemaId)}</span>}>
                 <p>
                   Date:{" "}
-                  {new Date(screening.date.seconds ? screening.date.seconds * 1000 : screening.date).toLocaleString()}
+                  {(() => {
+                    const d = screening.date;
+                    if (d && typeof d === "object" && typeof d.seconds === "number") {
+                      return new Date(d.seconds * 1000).toLocaleString();
+                    }
+                    if (d && typeof d === "object" && d.$d) {
+                      return new Date(d.$d).toLocaleString();
+                    }
+                    if (typeof d === "string" || d instanceof Date) {
+                      const parsed = new Date(d);
+                      return isNaN(parsed.getTime()) ? "Invalid date" : parsed.toLocaleString();
+                    }
+                    return "Invalid date";
+                  })()}
                 </p>
                 <p>Hall: {screening.hall}</p>
                 <p>Tickets Sold: {screening.tickedCount}</p>

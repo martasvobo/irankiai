@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { functions } from "../firebaseConfig";
 import { Cinema } from "../types/cinema";
 import { Movie } from "../types/movie";
+import dayjs from "dayjs";
 
 const getMovieScreenings = httpsCallable(functions, "getMovieScreenings");
 const createMovieScreening = httpsCallable(functions, "createMovieScreening");
@@ -14,7 +15,6 @@ const getCinemas = httpsCallable(functions, "getCinemas");
 
 const MovieScreeningPage: React.FC = () => {
   const [movieScreenings, setMovieScreenings] = useState<any[]>([]);
-  console.log(movieScreenings);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMovieScreening, setEditingMovieScreening] = useState<any | null>(null);
   const [form] = Form.useForm();
@@ -41,8 +41,17 @@ const MovieScreeningPage: React.FC = () => {
   };
 
   const handleEdit = (record: any) => {
+    // Convert date to Dayjs for DatePicker compatibility
+    let dateValue = record.date;
+    if (dateValue && typeof dateValue === "object" && typeof dateValue.seconds === "number") {
+      dateValue = dayjs(dateValue.seconds * 1000);
+    } else if (dateValue && typeof dateValue === "object" && dateValue.$d) {
+      dateValue = dayjs(dateValue.$d);
+    } else if (typeof dateValue === "string" || dateValue instanceof Date) {
+      dateValue = dayjs(dateValue);
+    }
     setEditingMovieScreening(record);
-    form.setFieldsValue(record);
+    form.setFieldsValue({ ...record, date: dateValue });
     setIsModalOpen(true);
   };
 
@@ -82,7 +91,26 @@ const MovieScreeningPage: React.FC = () => {
       key: "cinemaId",
       render: (id: string) => cinemas.find((c) => c.id === id)?.name || id,
     },
-    { title: "Date", dataIndex: "date", key: "date" },
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      render: (date: any) => {
+        // Firestore Timestamp
+        if (date && typeof date === "object" && typeof date.seconds === "number") {
+          return new Date(date.seconds * 1000).toLocaleString();
+        }
+        // Dayjs/Moment with $d
+        if (date && typeof date === "object" && date.$d) {
+          return new Date(date.$d).toLocaleString();
+        }
+        // ISO string or Date
+        if (typeof date === "string" || date instanceof Date) {
+          return new Date(date).toLocaleString();
+        }
+        return "";
+      },
+    },
     { title: "Hall", dataIndex: "hall", key: "hall" },
     { title: "Ticket Count", dataIndex: "tickedCount", key: "tickedCount" },
     {

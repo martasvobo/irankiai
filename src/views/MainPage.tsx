@@ -15,6 +15,18 @@ export default function MainPage() {
       <Button type="primary" size="large" onClick={() => navigate("/users")}>
         Go to Users Page
       </Button>
+      <Divider />
+      <Button type="primary" size="large" onClick={() => navigate("/cinemas")}>
+        Go to Cinemas Page
+      </Button>
+      <Divider />
+      <Button type="primary" size="large" onClick={() => navigate("/personal-movies")}>
+        Go to Personal Movies Page
+      </Button>
+      <Divider />
+      <Button type="primary" size="large" onClick={() => navigate("/movie-screenings")}>
+        Go to Movie Screenings Page
+      </Button>
     </div>
   );
 }

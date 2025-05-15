@@ -18,10 +18,10 @@ const getPersonalMovies = onCall({ region: "europe-west1" }, async () => {
 });
 
 const createPersonalMovie = onCall({ region: "europe-west1" }, async (request) => {
-  const { state, rating, review, updateDate, gameRating, movieId, userId } = request.data as any;
-  logger.info("Creating personal movie:", state, rating, review, updateDate, gameRating, movieId, userId);
+  const { state, rating, review, movieId, userId } = request.data as any;
+  logger.info("Creating personal movie:", state, rating, review, movieId, userId);
   try {
-    const newPersonalMovie = { state, rating, review, updateDate: new Date(updateDate), gameRating, movieId, userId };
+    const newPersonalMovie = { state, rating, review, movieId, userId };
     const docRef = await db.collection("personalMovies").add(newPersonalMovie);
     return { status: "success", id: docRef.id };
   } catch (error) {
@@ -31,11 +31,11 @@ const createPersonalMovie = onCall({ region: "europe-west1" }, async (request) =
 });
 
 const updatePersonalMovie = onCall({ region: "europe-west1" }, async (request) => {
-  const { id, state, rating, review, updateDate, gameRating } = request.data as any;
-  logger.info("Updating personal movie:", id, state, rating, review, updateDate, gameRating);
+  const { id, state, rating, review } = request.data as any;
+  logger.info("Updating personal movie:", id, state, rating, review);
   try {
     const personalMovieRef = db.collection("personalMovies").doc(id);
-    await personalMovieRef.update({ state, rating, review, updateDate: new Date(updateDate), gameRating });
+    await personalMovieRef.update({ state, rating, review });
     return { status: "success" };
   } catch (error) {
     logger.error("Error updating personal movie:", error);

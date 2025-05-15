@@ -8,6 +8,9 @@ import MainPage from "./views/MainPage";
 import MoviesPage from "./views/MoviesPage";
 import "./tailwind.css";
 import UsersPage from "./views/UsersPage";
+import CinemasPage from "./views/CinemasPage";
+import PersonalMoviesPage from "./views/PersonalMoviesPage";
+import MovieScreeningPage from "./views/movieScreeningPage";
 
 const { Header, Content } = Layout;
 
@@ -74,6 +77,9 @@ const App: React.FC = () => {
           />
           <Route path="/movies" element={<MoviesPage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/cinemas" element={<CinemasPage />} />
+          <Route path="/personal-movies" element={<PersonalMoviesPage />} />
+          <Route path="/movie-screenings" element={<MovieScreeningPage />} />
         </Routes>
       </Content>
     </Layout>

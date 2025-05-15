@@ -60,11 +60,20 @@ export default function MainPage() {
           <Divider />
         </>
       )}
-      {userType === "cinemaWorker" && (
+      {userType === "user" && (
         <>
           <Button type="primary" size="large" onClick={() => navigate("/available-screenings")}>
             See Available Screenings
           </Button>
+          <Divider />
+        </>
+      )}
+      {userType === "user" && (
+        <>
+          <Button type="primary" size="large" onClick={() => navigate("/movie-list")}>
+            Go to Movie List Page
+          </Button>
+          <Divider />
         </>
       )}
     </div>

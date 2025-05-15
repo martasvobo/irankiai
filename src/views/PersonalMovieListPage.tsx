@@ -1,4 +1,4 @@
-import { Button, Form, Input, message, Modal, Select, Space, Table } from "antd";
+import { Button, Form, Input, message, Modal, Select, Space, Table, Card, Row, Col } from "antd";
 import { onAuthStateChanged } from "firebase/auth";
 import { httpsCallable } from "firebase/functions";
 import React, { useEffect, useState } from "react";
@@ -111,33 +111,62 @@ const PersonalMoviesPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
-        Add Personal Movie
-      </Button>
-      <Table rowKey="id" dataSource={personalMovies} columns={columns} />
+    <div className="max-w-3xl mx-auto p-8 pb-16 bg-gray-50 min-h-screen">
+      <Row justify="center" className="mb-6">
+        <Col>
+          <Button type="primary" onClick={handleAdd} size="large">
+            Add Personal Movie
+          </Button>
+        </Col>
+      </Row>
+      <Card className="shadow-md rounded-xl bg-white">
+        <Table
+          rowKey="id"
+          dataSource={personalMovies}
+          columns={columns}
+          pagination={{ pageSize: 8 }}
+          className="personal-movies-table"
+          style={{ borderRadius: 12, overflow: "hidden" }}
+        />
+      </Card>
       <Modal
         title={editingPersonalMovie ? "Edit Personal Movie" : "Add Personal Movie"}
         open={isModalOpen}
         onOk={handleModalOk}
         onCancel={() => setIsModalOpen(false)}
+        className="personal-movies-modal"
+        bodyStyle={{ borderRadius: 12, padding: 32 }}
       >
-        <Form form={form} layout="vertical">
-          <Form.Item name="state" label="State" rules={[{ required: true, message: "Please select the state" }]}>
-            <Select>
+        <Form form={form} layout="vertical" className="space-y-4">
+          <Form.Item
+            name="state"
+            label="State"
+            rules={[{ required: true, message: "Please select the state" }]}
+            style={{ marginBottom: 16 }}
+          >
+            <Select size="large">
               <Select.Option value="toWatch">To Watch</Select.Option>
               <Select.Option value="watched">Watched</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item name="rating" label="Rating" rules={[{ required: true, message: "Please enter the rating" }]}>
-            <Input type="number" min={0} max={10} />
+          <Form.Item
+            name="rating"
+            label="Rating"
+            rules={[{ required: true, message: "Please enter the rating" }]}
+            style={{ marginBottom: 16 }}
+          >
+            <Input type="number" min={0} max={10} size="large" />
           </Form.Item>
-          <Form.Item name="review" label="Review">
-            <Input.TextArea />
+          <Form.Item name="review" label="Review" style={{ marginBottom: 16 }}>
+            <Input.TextArea rows={3} size="large" />
           </Form.Item>
-
-          <Form.Item name="movieId" label="Movie" rules={[{ required: true, message: "Please select a movie" }]}>
-            <Select showSearch optionFilterProp="children" placeholder="Select a movie">
+          <Form.Item
+            name="movieId"
+            label="Movie"
+            rules={[{ required: true, message: "Please select a movie" }]}
+            style={{ marginBottom: 0 }}
+          >
+            <Select showSearch optionFilterProp="children" placeholder="Select a movie" size="large">
               {movies.map((movie) => (
                 <Select.Option key={movie.id} value={movie.id}>
                   {movie.title}

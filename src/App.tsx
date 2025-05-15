@@ -9,10 +9,11 @@ import MoviesPage from "./views/MoviesPage";
 import "./tailwind.css";
 import UsersPage from "./views/UsersPage";
 import CinemasPage from "./views/CinemasPage";
-import PersonalMoviesPage from "./views/PersonalMoviesPage";
+import PersonalMoviesPage from "./views/PersonalMovieListPage";
 import MovieScreeningPage from "./views/movieScreeningPage";
 import AvailableScreeningsPage from "./views/AvailableScreeningsPage";
 import ProtectedRoute from "./views/ProtectedRoute";
+import MovieListPage from "./views/MovieListPage";
 
 const { Header, Content } = Layout;
 
@@ -122,6 +123,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute allowedTypes={["user"]}>
                 <AvailableScreeningsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/movie-list"
+            element={
+              <ProtectedRoute allowedTypes={["user"]}>
+                <MovieListPage />
               </ProtectedRoute>
             }
           />

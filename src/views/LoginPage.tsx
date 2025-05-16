@@ -1,9 +1,9 @@
 import { Button, message } from "antd";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { httpsCallable } from "firebase/functions";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, functions } from "../firebaseConfig";
-import { httpsCallable } from "firebase/functions";
 
 const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState("");
@@ -18,8 +18,9 @@ const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({ onLo
         email,
         description: "",
         type: "user",
+        password,
       });
-      await createUserWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email, password);
       onLoginSuccess(email);
     } catch (error: any) {
       if (error.code === "auth/email-already-in-use") {

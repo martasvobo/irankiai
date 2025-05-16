@@ -11,6 +11,7 @@ const getUsers = httpsCallable(functions, "getUsers");
 const createUser = httpsCallable(functions, "createUser");
 const updateUser = httpsCallable(functions, "updateUser");
 const deleteUser = httpsCallable(functions, "deleteUser");
+const getCinemas = httpsCallable(functions, "getCinemas");
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -20,6 +21,20 @@ export default function UsersPage() {
   const [form] = Form.useForm();
   const [isAdmin, setIsAdmin] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [cinemas, setCinemas] = useState<any[]>([]);
+  const [selectedType, setSelectedType] = useState<string | undefined>(undefined);
+  // Fetch cinemas for cinemaWorker selection
+  useEffect(() => {
+    const fetchCinemas = async () => {
+      try {
+        const result = await getCinemas();
+        setCinemas((result.data as any).cinemas || []);
+      } catch (error) {
+        setCinemas([]);
+      }
+    };
+    fetchCinemas();
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async (uid: string) => {
@@ -72,6 +87,7 @@ export default function UsersPage() {
     }
     setEditingUser(null);
     form.resetFields();
+    setSelectedType(undefined);
     setIsModalOpen(true);
   };
 
@@ -125,6 +141,7 @@ export default function UsersPage() {
     }
     setEditingUser(user);
     form.setFieldsValue(user);
+    setSelectedType(user.type);
     setIsModalOpen(true);
   };
 
@@ -217,6 +234,9 @@ export default function UsersPage() {
               <p>Email: {user.email}</p>
               <p>Type: {user.type}</p>
               <p>Description: {user.description}</p>
+              {user.cinemaId && (
+                <p>Cinema: {cinemas.find((cinema) => cinema.id === user.cinemaId)?.name || user.cinemaId}</p>
+              )}
             </Card>
           </List.Item>
         )}
@@ -259,12 +279,30 @@ export default function UsersPage() {
             <Input.TextArea />
           </Form.Item>
           <Form.Item name="type" label="Type" rules={[{ required: true, message: "Please select the user type" }]}>
-            <Select>
+            <Select
+              onChange={(value) => {
+                setSelectedType(value);
+                if (value !== "cinemaWorker") {
+                  form.setFieldsValue({ cinemaId: undefined });
+                }
+              }}
+            >
               <Select.Option value="admin">Admin</Select.Option>
               <Select.Option value="cinemaWorker">Cinema Worker</Select.Option>
               <Select.Option value="user">User</Select.Option>
             </Select>
           </Form.Item>
+          {selectedType === "cinemaWorker" && (
+            <Form.Item name="cinemaId" label="Cinema" rules={[{ required: true, message: "Please select a cinema" }]}>
+              <Select placeholder="Select a cinema">
+                {cinemas.map((cinema) => (
+                  <Select.Option key={cinema.id} value={cinema.id}>
+                    {cinema.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     </div>

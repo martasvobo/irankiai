@@ -25,7 +25,13 @@ const PersonalMoviesPage: React.FC = () => {
   const fetchPersonalMovies = async () => {
     const res: any = await getPersonalMovies();
     if (res.data.status === "success") {
-      setPersonalMovies(res.data.personalMovies);
+      // Only show movies belonging to the current user
+      const userId = currentUserId;
+      if (userId) {
+        setPersonalMovies(res.data.personalMovies.filter((pm: any) => pm.userId === userId));
+      } else {
+        setPersonalMovies([]);
+      }
     }
   };
 
@@ -40,12 +46,21 @@ const PersonalMoviesPage: React.FC = () => {
       }
     };
     fetchMovies();
-    // Get current user id
+    // Get current user id and fetch personal movies after user is set
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUserId(user ? user.uid : null);
     });
     return () => unsubscribe();
   }, []);
+
+  // Fetch personal movies when currentUserId changes
+  useEffect(() => {
+    if (currentUserId) {
+      fetchPersonalMovies();
+    } else {
+      setPersonalMovies([]);
+    }
+  }, [currentUserId]);
 
   const handleAdd = () => {
     setEditingPersonalMovie(null);

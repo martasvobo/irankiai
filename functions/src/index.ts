@@ -1,32 +1,6 @@
-import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
-import { auth } from "firebase-functions/v1";
 
 admin.initializeApp();
-
-export const createUserProfile = auth.user().onCreate(async (user) => {
-  try {
-    const { uid, email, displayName } = user;
-
-    await admin
-      .firestore()
-      .collection("users")
-      .doc(uid)
-      .set({
-        uid,
-        email: email || null,
-        username: displayName || null,
-        type: "user",
-        description: "",
-      });
-
-    logger.info(`User profile created for ${uid}`, { structuredData: true });
-    return null;
-  } catch (error) {
-    logger.error("Error creating user profile:", error);
-    return null;
-  }
-});
 
 import movieController from "./controllers/movieController";
 export const getMovies = movieController.getMovies;

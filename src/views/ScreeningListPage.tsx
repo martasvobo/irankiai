@@ -1,7 +1,9 @@
 import { Button, DatePicker, Form, Input, message, Modal, Select, Space, Table } from "antd";
 import { httpsCallable } from "firebase/functions";
 import React, { useEffect, useState } from "react";
-import { functions } from "../firebaseConfig";
+import { functions, auth, db } from "../firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { Cinema } from "../types/cinema";
 import { Movie } from "../types/movie";
 import dayjs from "dayjs";
@@ -20,23 +22,50 @@ const MovieScreeningPage: React.FC = () => {
   const [form] = Form.useForm();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [cinemas, setCinemas] = useState<Cinema[]>([]);
+  const [currentCinemaId, setCurrentCinemaId] = useState<string | null | undefined>(undefined);
 
-  const fetchMovieScreenings = async () => {
+  const fetchMovieScreenings = async (cinemaIdToUse: string) => {
     const res: any = await getMovieScreenings();
     if (res.data.status === "success") {
-      setMovieScreenings(res.data.movieScreenings);
+      setMovieScreenings(res.data.movieScreenings.filter((s: any) => s.cinemaId === cinemaIdToUse));
     }
   };
 
   useEffect(() => {
-    fetchMovieScreenings();
+    // Get current user's cinemaId
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          setCurrentCinemaId(userDoc.data().cinemaId);
+        } else {
+          setCurrentCinemaId(null);
+        }
+      } else {
+        setCurrentCinemaId(null);
+      }
+    });
     getMovies().then((res: any) => setMovies(res.data.movies || []));
     getCinemas().then((res: any) => setCinemas(res.data.cinemas || []));
+    return () => unsubscribe();
   }, []);
+
+  // Fetch screenings only after cinemaId is loaded and valid
+  useEffect(() => {
+    if (typeof currentCinemaId === "string" && currentCinemaId) {
+      fetchMovieScreenings(currentCinemaId);
+    } else if (currentCinemaId === null) {
+      setMovieScreenings([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentCinemaId]);
 
   const handleAdd = () => {
     setEditingMovieScreening(null);
     form.resetFields();
+    if (currentCinemaId) {
+      form.setFieldsValue({ cinemaId: currentCinemaId });
+    }
     setIsModalOpen(true);
   };
 
@@ -51,28 +80,34 @@ const MovieScreeningPage: React.FC = () => {
       dateValue = dayjs(dateValue);
     }
     setEditingMovieScreening(record);
-    form.setFieldsValue({ ...record, date: dateValue });
+    form.setFieldsValue({ ...record, date: dateValue, cinemaId: record.cinemaId });
     setIsModalOpen(true);
   };
 
   const handleDelete = async (id: string) => {
     await deleteMovieScreening({ id });
     message.success("Movie screening deleted");
-    fetchMovieScreenings();
+    if (currentCinemaId) {
+      fetchMovieScreenings(currentCinemaId);
+    }
   };
 
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
+      // Always use currentCinemaId for cinemaId
+      const finalValues = { ...values, cinemaId: currentCinemaId };
       if (editingMovieScreening) {
-        await updateMovieScreening({ id: editingMovieScreening.id, ...values });
+        await updateMovieScreening({ id: editingMovieScreening.id, ...finalValues });
         message.success("Movie screening updated");
       } else {
-        await createMovieScreening(values);
+        await createMovieScreening(finalValues);
         message.success("Movie screening created");
       }
       setIsModalOpen(false);
-      fetchMovieScreenings();
+      if (currentCinemaId) {
+        fetchMovieScreenings(currentCinemaId);
+      }
     } catch (error) {
       message.error("Error saving movie screening");
     }
@@ -155,7 +190,11 @@ const MovieScreeningPage: React.FC = () => {
             <Select options={movies.map((m) => ({ label: m.title, value: m.id }))} size="large" />
           </Form.Item>
           <Form.Item name="cinemaId" label="Cinema" rules={[{ required: true }]} className="mb-4">
-            <Select options={cinemas.map((c) => ({ label: c.name, value: c.id }))} size="large" />
+            <Select
+              options={cinemas.filter((c) => c.id === currentCinemaId).map((c) => ({ label: c.name, value: c.id }))}
+              size="large"
+              disabled
+            />
           </Form.Item>
           <Form.Item name="date" label="Date" rules={[{ required: true }]} className="mb-4">
             <DatePicker showTime className="w-full" size="large" />

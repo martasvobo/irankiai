@@ -2,16 +2,24 @@ import { Button, message } from "antd";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebaseConfig";
+import { auth, functions } from "../firebaseConfig";
+import { httpsCallable } from "firebase/functions";
 
 const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const createUser = httpsCallable(functions, "createUser");
   const handleRegister = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      await createUser({
+        username: email.split("@")[0],
+        email,
+        description: "",
+        type: "user",
+      });
       onLoginSuccess(email);
     } catch (error: any) {
       if (error.code === "auth/email-already-in-use") {
@@ -34,7 +42,8 @@ const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({ onLo
     }
   };
 
-  return (    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-md rounded-xl p-8 w-full max-w-sm flex flex-col items-center">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Login</h1>
         <input

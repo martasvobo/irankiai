@@ -47,6 +47,21 @@ const deleteCinema = onCall({ region: "europe-west1" }, async (request) => {
   const { id } = request.data as any;
   logger.info("Deleting cinema with ID:", id);
   try {
+    const usersSnapshot = await db.collection("users").where("cinemaId", "==", id).get();
+    const userDeletes = usersSnapshot.docs.map(async (doc) => {
+      await doc.ref.delete();
+      try {
+        await admin.auth().deleteUser(doc.id);
+      } catch (err) {
+        logger.error(`Error deleting user from Auth with ID ${doc.id}:`, err);
+      }
+    });
+    await Promise.all(userDeletes);
+
+    const screeningsSnapshot = await db.collection("movieScreenings").where("cinemaId", "==", id).get();
+    const screeningDeletes = screeningsSnapshot.docs.map((doc) => doc.ref.delete());
+    await Promise.all(screeningDeletes);
+
     const cinemaRef = db.collection("cinemas").doc(id);
     await cinemaRef.delete();
     return { status: "success" };

@@ -19,6 +19,7 @@ const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({ onLo
         description: "",
         type: "user",
       });
+      await createUserWithEmailAndPassword(auth, email, password);
       onLoginSuccess(email);
     } catch (error: any) {
       if (error.code === "auth/email-already-in-use") {
@@ -28,7 +29,6 @@ const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({ onLo
       }
       console.error("Registration error:", error);
     }
-    await createUserWithEmailAndPassword(auth, email, password);
   };
 
   const handleLogin = async () => {

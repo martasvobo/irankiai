@@ -13,7 +13,6 @@ const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({ onLo
   const createUser = httpsCallable(functions, "createUser");
   const handleRegister = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
       await createUser({
         username: email.split("@")[0],
         email,
@@ -29,6 +28,7 @@ const LoginPage: React.FC<{ onLoginSuccess: (email: string) => void }> = ({ onLo
       }
       console.error("Registration error:", error);
     }
+    await createUserWithEmailAndPassword(auth, email, password);
   };
 
   const handleLogin = async () => {

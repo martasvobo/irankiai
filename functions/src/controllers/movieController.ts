@@ -73,9 +73,24 @@ const deleteMovie = onCall({ region: "europe-west1" }, async (request) => {
   }
 });
 
+const getGenres = onCall({ region: "europe-west1" }, async () => {
+  try {
+    const snapshot = await db.collection("genres").get();
+    const genres = <any>[];
+    snapshot.forEach((doc) => {
+      genres.push({ id: doc.id, ...doc.data() });
+    });
+
+    return { status: "success", genres };
+  } catch (error) {
+    return { status: "error" };
+  }
+});
+
 export default {
   getMovies,
   createMovie,
   updateMovie,
   deleteMovie,
+  getGenres,
 };

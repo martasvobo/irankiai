@@ -7,6 +7,7 @@ export const getMovies = movieController.getMovies;
 export const createMovie = movieController.createMovie;
 export const updateMovie = movieController.updateMovie;
 export const deleteMovie = movieController.deleteMovie;
+export const getGenres = movieController.getGenres;
 
 import userController from "./controllers/userController";
 export const getUsers = userController.getUsers;

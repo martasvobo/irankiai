@@ -32,3 +32,6 @@ export const getPersonalMovies = personalMovieController.getPersonalMovies;
 export const createPersonalMovie = personalMovieController.createPersonalMovie;
 export const updatePersonalMovie = personalMovieController.updatePersonalMovie;
 export const deletePersonalMovie = personalMovieController.deletePersonalMovie;
+
+import { createCheckoutSession } from "./controllers/checkoutController";
+export { createCheckoutSession };

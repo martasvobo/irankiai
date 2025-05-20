@@ -14,6 +14,7 @@ import MovieScreeningPage from "./views/ScreeningListPage";
 import AvailableScreeningsPage from "./views/AvailableScreeningsPage";
 import ProtectedRoute from "./views/ProtectedRoute";
 import MovieListPage from "./views/MovieListPage";
+import RecommendationPage from "./views/MovieReccomendationsPage";
 import SuccessPage from "./views/SuccessPage";
 
 const { Header, Content } = Layout;
@@ -115,6 +116,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute allowedTypes={["user"]}>
                 <PersonalMoviesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/personal-movies-recommendations"
+            element={
+              <ProtectedRoute allowedTypes={["user"]}>
+                <RecommendationPage />
               </ProtectedRoute>
             }
           />

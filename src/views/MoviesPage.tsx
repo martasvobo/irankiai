@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, List, Modal, Spin, message } from "antd";
+import { Button, Card, Form, Input, List, Modal, Select, Spin, message } from "antd";
 import "antd/dist/reset.css";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
@@ -7,7 +7,9 @@ import React, { useEffect, useState } from "react";
 import { auth, db, functions } from "../firebaseConfig";
 import "@ant-design/v5-patch-for-react-19";
 import { Movie } from "../types/movie";
+import { Genre } from "../types/genre";
 
+const getGenres = httpsCallable(functions, "getGenres");
 const getMovies = httpsCallable(functions, "getMovies");
 const createMovie = httpsCallable(functions, "createMovie");
 const updateMovie = httpsCallable(functions, "updateMovie");
@@ -21,6 +23,8 @@ export default function MoviesPage() {
   const [form] = Form.useForm();
   const [isAdmin, setIsAdmin] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [genreList, setGenreList] = useState<Genre[]>([]);
+
 
   useEffect(() => {
     const fetchUserData = async (uid: string) => {
@@ -68,6 +72,20 @@ export default function MoviesPage() {
 
     fetchMovies();
   }, [messageApi]);
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const result: any = await getGenres();
+        setGenreList(result.data.genres as Genre[]);
+      } catch (error) {
+        console.error("Failed to fetch genres:", error);
+      }
+    };
+
+    fetchGenres();
+  }, []);
+
 
   const pressAddMovieButton = () => {
     if (!isAdmin) {
@@ -252,6 +270,19 @@ export default function MoviesPage() {
             rules={[{ required: true, message: "Please enter the release date" }]}
           >
             <Input type="date" />
+          </Form.Item>
+          <Form.Item
+            name="genres"
+            label="Genres"
+            rules={[{ required: true, message: "Please select at least one genre" }]}
+          >
+            <Select mode="multiple" placeholder="Select genres">
+              {genreList.map((genre) => (
+                <Select.Option key={genre.id} value={genre.id}>
+                  {genre.genre}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
         </Form>
       </Modal>

@@ -48,6 +48,9 @@ export default function MainPage() {
             <Button type="primary" className="w-full" onClick={() => navigate("/personal-movies")}>
               Personal Movies
             </Button>
+            <Button type="primary" className="w-full" onClick={() => navigate("/personal-movies-recommendations")}>
+              Movies Recommendations
+            </Button>
             <Button type="primary" className="w-full" onClick={() => navigate("/available-screenings")}>
               Available Screenings
             </Button>

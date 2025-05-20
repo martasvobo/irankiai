@@ -18,13 +18,14 @@ const getMovies = onCall({ region: "europe-west1" }, async () => {
 });
 
 const createMovie = onCall({ region: "europe-west1" }, async (request) => {
-  const { title, director, releaseDate } = request.data as any;
-  logger.info("Creating movie: ", title, director, releaseDate);
+  const { title, director, releaseDate, genres } = request.data as any;
+  logger.info("Creating movie: ", title, director, releaseDate, genres );
   try {
     const newMovie = {
       title,
       director,
       releaseDate,
+      genres,
     };
     const docRef = await db.collection("movies").add(newMovie);
     return { status: "success", id: docRef.id };
@@ -53,7 +54,6 @@ const updateMovie = onCall({ region: "europe-west1" }, async (request) => {
 
 const deleteMovie = onCall({ region: "europe-west1" }, async (request) => {
   const { id } = request.data as any;
-
   logger.info("Deleting movie with ID:", id);
   try {
     const movieRef = db.collection("movies").doc(id);

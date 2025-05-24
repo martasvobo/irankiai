@@ -14,7 +14,7 @@ import MovieScreeningPage from "./views/ScreeningListPage";
 import AvailableScreeningsPage from "./views/AvailableScreeningsPage";
 import ProtectedRoute from "./views/ProtectedRoute";
 import MovieListPage from "./views/MovieListPage";
-import RecommendationPage from "./views/MovieReccomendationsPage";
+import RecommendationPage from "./views/MovieRecommendationsPage";
 import SuccessPage from "./views/SuccessPage";
 
 const { Header, Content } = Layout;

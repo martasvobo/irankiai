@@ -19,7 +19,7 @@ const getMovies = onCall({ region: "europe-west1" }, async () => {
 
 const createMovie = onCall({ region: "europe-west1" }, async (request) => {
   const { title, director, releaseDate, genres } = request.data as any;
-  logger.info("Creating movie: ", title, director, releaseDate, genres );
+  logger.info("Creating movie: ", title, director, releaseDate, genres);
   try {
     const newMovie = {
       title,
@@ -54,17 +54,22 @@ const updateMovie = onCall({ region: "europe-west1" }, async (request) => {
 
 const deleteMovie = onCall({ region: "europe-west1" }, async (request) => {
   const { id } = request.data as any;
-  logger.info("Deleting movie with ID:", id);
+  logger.info("Deleting movie with Id:", id);
   try {
     const movieRef = db.collection("movies").doc(id);
     await movieRef.delete();
-    const personalMoviesSnapshot = await db.collection("personalMovies")
-        .where("movieId", "==", id)
-        .get();
+
+    const personalMoviesSnapshot = await db.collection("personalMovies").where("movieId", "==", id).get();
     const batch = db.batch();
     personalMoviesSnapshot.forEach((doc) => {
-        batch.delete(doc.ref);
+      batch.delete(doc.ref);
     });
+
+    const screeningsSnapshot = await db.collection("movieScreenings").where("movieId", "==", id).get();
+    screeningsSnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
     await batch.commit();
     return { status: "success" };
   } catch (error) {
